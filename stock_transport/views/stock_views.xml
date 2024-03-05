@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <record id="stock_picking_batch.stock_picking_batch_action" model="ir.actions.act_window">
+        <field name="view_mode">tree,kanban,form,graph</field>
+    </record>
+    <record id="view_stock_picking_batch_graph" model="ir.ui.view">
+        <field name="name">stock.picking.batch.graph</field>
+        <field name="model">stock.picking.batch</field>
+        <field name="arch" type="xml">
+            <graph string="Stock Picking Batch Graph" type="bar">
+                <field name="volume" string="Volume" type="measure"/> 
+                <field name="weight" string="Weight" type="measure"/>
+            </graph>
+        </field>
+    </record>
     <data>
         <record id="stock_picking_batch_form_view_inherit" model="ir.ui.view">
             <field name="name">stock.picking.batch.form.view.inherit</field>
@@ -8,15 +21,17 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='scheduled_date']" position="after">
                     <field name="dock" />
-                    <field name="vehicle" placeholder="Third Party Provider"/>
-                    <field name="vehicle_category" placeholder="Semi Truck(200.0,200.0)"/>
+                    <field name="vehicle" placeholder="Third Party Provider" />
+                    <field name="vehicle_category" placeholder="Semi Truck(200.0,200.0)" />
+                    <field name="weight" widget="progressbar" invisible="vehicle_category == False"/>
+                    <field name="volume" widget="progressbar" invisible="vehicle_category == False"/>
                 </xpath>
             </field>
         </record>
     </data>
     <data>
-        <record id="drop_tree_view_inherit" model="ir.ui.view">
-            <field name="name">drop.tree.view.inherit</field>
+        <record id="stock_view_inherit" model="ir.ui.view">
+            <field name="name">stock.view.inherit</field>
             <field name="model">stock.picking</field>
             <field name="inherit_id" ref="stock.vpicktree" />
             <field name="arch" type="xml">

@@ -1,3 +1,4 @@
 from . import fleet_vehicle
-from . import dock
+from . import stock_picking
+from . import stock_picking_batch
 from . import res_config_settings
