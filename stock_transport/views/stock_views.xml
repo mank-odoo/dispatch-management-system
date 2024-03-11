@@ -1,16 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <record id="stock_picking_batch.stock_picking_batch_action" model="ir.actions.act_window">
-        <field name="view_mode">tree,kanban,form,graph</field>
+        <field name="view_mode">tree,kanban,form,graph,gantt</field>
     </record>
     <record id="view_stock_picking_batch_graph" model="ir.ui.view">
         <field name="name">stock.picking.batch.graph</field>
         <field name="model">stock.picking.batch</field>
         <field name="arch" type="xml">
             <graph string="Stock Picking Batch Graph" type="bar">
-                <field name="volume" string="Volume" type="measure"/> 
-                <field name="weight" string="Weight" type="measure"/>
+                <field name="volume" string="Volume" />
+                <field name="weight" string="Weight" />
+                <field name="lines" string="Line" />
+                <field name="transfers" string="Transfer"/>
+                <field name="scheduled_date" type="col" interval="day" />
+                <field name="vehicle_category" type="row" />
             </graph>
+        </field>
+    </record>
+    
+
+    <record id="stock_picking_batch_view_gantt" model="ir.ui.view">
+        <field name="name">stock.picking.batch.view.gantt</field>
+        <field name="model">stock.picking.batch</field>
+        <field name="arch" type="xml">
+            <gantt date_start="scheduled_date" date_stop="scheduled_date" string="Schedule" default_group_by='dock,vehicle' default_scale="week" color="vehicle" decoration-info="state == 'draft'" decoration-success="state == 'done'">
+                <field name="state"/>
+                <field name="name"/>
+                <field name="weight"/>
+                <field name="volume"/>
+                <templates>
+                    <div t-name="gantt-popover" class="container-fluid">
+                        <div class="row g-0">
+                            <div class="col">
+                                <ul class="ps-1 mb-0 list-unstyled">
+                                    <li><strong><t t-esc="name"/></strong> <t t-esc="weight"/> Kg <t t-esc="volume"/> m3</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </templates>    
+            </gantt>
         </field>
     </record>
     <data>
@@ -22,9 +51,28 @@
                 <xpath expr="//field[@name='scheduled_date']" position="after">
                     <field name="dock" />
                     <field name="vehicle" placeholder="Third Party Provider" />
-                    <field name="vehicle_category" placeholder="Semi Truck(200.0,200.0)" />
-                    <field name="weight" widget="progressbar" invisible="vehicle_category == False"/>
-                    <field name="volume" widget="progressbar" invisible="vehicle_category == False"/>
+                    <field name="vehicle_category" placeholder="Semi Truck(200.0 kg ,200.0 m3) "/>
+                    <label for='total_weight' string="Weight" invisible="not vehicle_category"/>
+                    <div class='new d-flex flex-row gap-2' invisible="not vehicle_category">
+                        <div class='d-flex flex-row gap-1'>
+                            <field name='total_weight' nolabel='1'/>
+                            <span>kg</span>
+                        </div>
+                        <field name='weight' widget='progressbar' nolabel='1' />
+                    </div>
+                    <label for='total_volume' string="Volume" invisible="not vehicle_category"/>
+                    <div class='new d-flex flex-row gap-2' invisible="not vehicle_category">
+                        <div class='d-flex flex-row gap-1'>
+                            <field name='total_volume' nolabel='1'/>
+                            <span >&#13221; </span>
+                        </div>
+                        <field name='volume' widget='progressbar' nolabel='1' />
+                    </div>
+                    <style>
+                        .new {
+                            color:red;
+                        }
+                    </style>
                 </xpath>
             </field>
         </record>
@@ -37,7 +85,8 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='origin']" position="after">
                     <field name="volume" />
-            </xpath>
+                    <field name="weight"/>
+                </xpath>
             </field>
         </record>
     </data>
